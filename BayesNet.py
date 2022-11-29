@@ -16,7 +16,7 @@ class BayesNet:
 
     # LOADING FUNCTIONS ------------------------------------------------------------------------------------------------
     def create_bn(self, variables: List[str], edges: List[Tuple[str, str]], cpts: Dict[str, pd.DataFrame]) -> None:
-        """
+        """ 
         Creates the BN according to the python objects passed in.
         
         :param variables: List of names of the variables.
