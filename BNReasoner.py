@@ -17,7 +17,8 @@ class BNReasoner:
         else:
             self.bn = net
 
-    # TODO: This is where your methods should go
+    # TODO: This is where your methods should
+    # go
     def prune(self, query: List[str], evidence: List[str]) -> bool:
         """
         Given a set of query variables Q and evidence e, node- and edge-prune the Bayesian network
@@ -43,7 +44,8 @@ class BNReasoner:
 
     def d_separation(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
         """
-        Given three sets of variables X, Y, and Z, determine whether X is d-separated of Y given Z through pruning
+        Given three sets of variables X, Y, and Z,
+        determine whether X is d-separated of Y given Z through pruning
         """
         while self.prune(X + Y, Z):
             continue
