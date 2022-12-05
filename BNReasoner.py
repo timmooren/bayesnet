@@ -103,7 +103,13 @@ class BNReasoner:
         """
         Given two factors f and g, compute the multiplied factor h=fg.
         """
-        return pd.concat([factor1, factor2])
+        # common_columns = list(set(factor1.columns).intersection(factor2.columns))
+        output = factor1.merge(factor2, on=['Wet Grass?'])
+        output['p'] = output['p_x'] * output['p_y']
+        return output
+
+
+
 
     def min_degree(self, X: List[str]) -> List[str]:
         """
@@ -122,7 +128,7 @@ class BNReasoner:
 
         # Queue variable 𝑋 ∈ 𝑿 ⊆ 𝑉 with the minimum degree in the interaction graph to the ordering.
         order.append(min_degree)
-        
+
         # Sum-out 𝑋 from the interaction graph.
 
 

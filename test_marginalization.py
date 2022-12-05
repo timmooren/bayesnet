@@ -20,11 +20,25 @@ marg = br.marginalization(cpt, 'Wet Grass?')
 max_out = br.max_out(cpt, 'Wet Grass?')
 
 # factor table from slide Multiplication of Factors
+
+# df1 = [
+#     [True, True, True, 0.95],
+# ]
+
 data = [
-    ['True', 'True', 0.448],
-    ['True', 'False', 0.192],
-    ['False', 'True', 0.112],
-    ['False', 'False', 0.248]
+    [True, True, 0.448],
+    [True, False, 0.192],
+    [False, True, 0.112],
+    [False, False, 0.248]
 ]
+
+# output = [
+#     [True, True,True, True, 0.95*0.448],
+#     [True, True,True, False, 0.95*0.192],
+# ]
+
+
 df = pd.DataFrame(data, columns=['Wet Grass?', 'nothing', 'p'])
+
 mult = br.factor_multiplication(df, cpt)
+print(mult)
