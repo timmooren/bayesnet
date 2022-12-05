@@ -26,27 +26,42 @@
 
     <!-- Variables-->
     <VARIABLE TYPE="nature">
-        <NAME>I</NAME>
+        <NAME>Asia</NAME>
         <OUTCOME>True</OUTCOME>
         <OUTCOME>False</OUTCOME>
     </VARIABLE>
     <VARIABLE TYPE="nature">
-        <NAME>J</NAME>
+        <NAME>Tuberculosis</NAME>
         <OUTCOME>True</OUTCOME>
         <OUTCOME>False</OUTCOME>
     </VARIABLE>
     <VARIABLE TYPE="nature">
-        <NAME>Y</NAME>
+        <NAME>Tuberculosis or Cancer</NAME>
         <OUTCOME>True</OUTCOME>
         <OUTCOME>False</OUTCOME>
     </VARIABLE>
     <VARIABLE TYPE="nature">
-        <NAME>X</NAME>
+        <NAME>Positive X-Ray</NAME>
         <OUTCOME>True</OUTCOME>
         <OUTCOME>False</OUTCOME>
     </VARIABLE>
     <VARIABLE TYPE="nature">
-        <NAME>O</NAME>
+        <NAME>Lung Cancer</NAME>
+        <OUTCOME>True</OUTCOME>
+        <OUTCOME>False</OUTCOME>
+    </VARIABLE>
+        <VARIABLE TYPE="nature">
+        <NAME>Smoker</NAME>
+        <OUTCOME>True</OUTCOME>
+        <OUTCOME>False</OUTCOME>
+    </VARIABLE>
+        <VARIABLE TYPE="nature">
+        <NAME>Bronchitis</NAME>
+        <OUTCOME>True</OUTCOME>
+        <OUTCOME>False</OUTCOME>
+    </VARIABLE>
+        <VARIABLE TYPE="nature">
+        <NAME>Dyspnoea</NAME>
         <OUTCOME>True</OUTCOME>
         <OUTCOME>False</OUTCOME>
     </VARIABLE>
