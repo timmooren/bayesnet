@@ -103,12 +103,13 @@ class BNReasoner:
         """
         Given two factors f and g, compute the multiplied factor h=fg.
         """
-        # common_columns = list(set(factor1.columns).intersection(factor2.columns))
-        output = factor1.merge(factor2, on=['Wet Grass?'])
+        common_columns = list(set(factor1.columns).intersection(factor2.columns))
+        common_columns.remove('p')
+
+        output = factor1.merge(factor2, on=common_columns)
         output['p'] = output['p_x'] * output['p_y']
+
         return output
-
-
 
 
     def min_degree(self, X: List[str]) -> List[str]:
