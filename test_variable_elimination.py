@@ -7,7 +7,7 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 # %%
-path = 'testing/lecture_example.BIFXML'
+path = 'testing/lecture_example2.BIFXML'
 
 # %%
 bn = BayesNet.BayesNet()
@@ -16,6 +16,4 @@ bn.load_from_bifxml(path)
 # %%
 br = BNReasoner(bn)
 
-# choose from 'min'  and 'fill'
-order = br.find_order('min')
-print(order)
+br.variable_elimination(["C"], [])

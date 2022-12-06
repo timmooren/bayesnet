@@ -45,3 +45,5 @@ print(br.bn.get_cpt('Rain?'))
 # %%
 # d
 print(br.bn.get_cpt('Wet Grass?'))
+
+

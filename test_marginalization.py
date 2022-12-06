@@ -16,8 +16,8 @@ br = BNReasoner(bn)
 cpt = br.bn.get_cpt('Wet Grass?')
 
 # examples from slide Maximising-Out – Introduction
-marg = br.marginalization(cpt, 'Wet Grass?')
-max_out = br.max_out(cpt, 'Wet Grass?')
+# marg = br.marginalization(cpt, 'Wet Grass?')
+# max_out = br.max_out(cpt, 'Wet Grass?')
 
 # factor table from slide Multiplication of Factors
 data = [
@@ -28,7 +28,7 @@ data = [
 ]
 
 
-df = pd.DataFrame(data, columns=['Wet Grass?', 'nothing', 'p'])
+df = pd.DataFrame(data, columns=['Wet Grass?', 'nothing', 'p']) #A=winter, B=sprinkler, C=rain, D=wet grass, E =slippery road
 
 mult = br.factor_multiplication(df, cpt)
 print(mult)
