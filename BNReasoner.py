@@ -46,18 +46,20 @@ class BNReasoner:
         to_keep = query + evidence.index.tolist()
 
         keep_node_pruning = True
-
+        
         while keep_node_pruning:
-
+              
             for node in bn.get_all_variables():
                 if node not in to_keep and not bn.get_children(node):
                     bn.del_var(node)
-
+            
                 # stop pruning if no nodes were deleted
                 else:
                     keep_node_pruning = False
 
         return bn
+
+
 
     def d_separation(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
         """
@@ -94,6 +96,7 @@ class BNReasoner:
         groups.remove(X)
         groups.remove('p')
         return factor.groupby(groups, as_index=False).sum()
+    
 
     def max_out(self, factor: pd.DataFrame, X: str) -> pd.DataFrame:
         """
@@ -109,40 +112,42 @@ class BNReasoner:
         """
         Given two factors f and g, compute the multiplied factor h=fg.
         """
-        common_columns = list(
-            set(factor1.columns).intersection(factor2.columns))
-
+        common_columns = list(set(factor1.columns).intersection(factor2.columns))
+       
         common_columns.remove('p')
 
         output = factor1.merge(factor2, on=common_columns)
-
+        
         output['p'] = output['p_x'] * output['p_y']
         output.drop(['p_x', 'p_y'], axis=1, inplace=True)
-
+    
         return output
 
-    def fill(self, interaction_graph: nx.DiGraph) -> str:
+    def fill(self, interaction_graph: nx.DiGraph)-> str:
         dict_points = {}
         interaction_graph = interaction_graph
-
         for node in interaction_graph.nodes():
-
+            
             neighbours = list(interaction_graph.neighbors(node))
             other_neighbours = [n for n in neighbours]
-
+            
             dict_points[node] = 0
-
+            
             # connect neighbours with edges
             for neighbour in neighbours:
+                
                 if len(other_neighbours) > 1:
-                    other_neighbours.remove(neighbour)
 
+                    other_neighbours.remove(neighbour)
+                    
                     # if neighbour has no connection to one of other neighbours, add edge
                     for n in other_neighbours:
+                        
                         if not interaction_graph.has_edge(n, neighbour):
                             dict_points[node] += 1
 
         return min(dict_points.items(), key=lambda x: x[1])
+    
 
     def find_order(self, arg: str) -> List[str]:
         """
@@ -151,6 +156,7 @@ class BNReasoner:
         """
         order = []
         interaction_graph = self.bn.get_interaction_graph()
+       
 
         for i in range(len(interaction_graph.nodes())-1):
             # find variable with the minimum degree in the interaction graph
@@ -159,87 +165,96 @@ class BNReasoner:
                 chosen_node, _ = min(degrees, key=lambda x: x[1])
             if arg == 'fill':
                 chosen_node, _ = self.fill(interaction_graph)
+            
 
             # Queue variable 𝑋 ∈ 𝑿 ⊆ 𝑉 with the minimum degree in the interaction graph to the ordering.
             order.append(chosen_node)
-
+            
             # find neigbours
             neighbours = list(interaction_graph.neighbors(chosen_node))
             other_neighbours = [n for n in neighbours]
-
+            
             # connect neighbours with edges
             for neighbour in neighbours:
-
+                
+                
                 # skip when no other neighbours
                 if len(other_neighbours) > 1:
-
+    
                     other_neighbours.remove(str(neighbour))
-
+                    
                     for n in other_neighbours:
-
+                    
                         if not interaction_graph.has_edge(n, neighbour):
                             interaction_graph.add_edge(neighbour, n)
 
             # remove node and edges
-            interaction_graph.remove_node(chosen_node)
+            interaction_graph.remove_node(chosen_node)     
 
             # nx.draw(interaction_graph, with_labels=True)
             # plt.show()
         order.append(list(interaction_graph.nodes())[0])
         return order
 
-    def variable_elimination(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
 
+
+    def variable_elimination(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
+        
         # get all variables in the network
         for node in query:
             # if node in evidence.index:
             #     raise ValueError("Query variable cannot be in evidence")
-
+            
             # get all grandparents
             ancestors = self.find_ancestors(node, [])
+            
+            order = self.find_order('min')
+            # order = ['A', 'B']
+            
+            # order ancestors based on the order
+            for element in order:
+                if element not in ancestors:
+                    order.remove(element)
 
-            #order = self.find_order('min')
-            order = ['A', 'B']
+            
+            # make a list of all cpts in the BN
+            list_tables = list(self.bn.get_all_cpts().values())
+            
+            for ancestor in order:   
+                # get cpts for the variable in the order
+                tables_ancestors = [table for table in list_tables if ancestor in table.columns]
+                tables_copy = tables_ancestors.copy()
 
-            for ancestor in ancestors:
-
-                tables = [table for table in self.bn.get_all_cpts(
-                ).values() if ancestor in table.columns]
-                tables_copy = tables.copy()
+                # multiply all cpts of this variable
                 for i in range(len(tables_copy)-1):
-                    product = self.factor_multiplication(
-                        tables[i], tables[i+1])
-                    print(f"multiply: \n{tables[i]}, \n{tables[i+1]}")
-                    print(node, ancestor)
-                    print(f"after mult: \n{product}")
-                    tables[i+1] = product
+                    product = self.factor_multiplication(tables_ancestors[i], tables_ancestors[i+1])
+                    # print(f"multiply: \n{tables_ancestors[i]}, \n{tables_ancestors[i+1]}")
+                    # print(f"after mult: \n{product}")
+                    tables_ancestors[i+1]= product
 
+                
+                list_tables = [table for table in list_tables if not ancestor in table.columns]
+            
+                # and append summed out table of ancestor to list
                 product = self.marginalization(product, ancestor)
+                list_tables.append(product)
+                
+                # print(f"marg compeleted:\n {product}")
 
-                # remove all tables with ancestor
-                # do make list of self.bn.get_all_cpts() (copy) and then remove tables from list when using in multiplication.
-                for table in tables:
-                    self.bn.del_var(????)
+        return product
 
-                # add new table to list
-                self.bn.add_var("product", product)
 
-                print(f"marg compeleted:\n {product}")
-
-            # visualize results
-            # print(node)
-            # print(self.bn.get_cpt(node))
-        return
-
-    def find_ancestors(self, node: str, ancestors: List[str]):
+    def find_ancestors(self, node : str, ancestors : List[str]): 
         ancestors = ancestors
-
+        
         parents = list(self.bn.structure.predecessors(node))
-
+        
         if parents:
-
+            
             for parent in parents:
                 ancestors.append(parent)
                 ancestors += self.find_ancestors(parent, ancestors)
                 ancestors = list(set(ancestors))
         return ancestors
+              
+
