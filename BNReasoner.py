@@ -59,8 +59,6 @@ class BNReasoner:
 
         return bn
 
-
-
     def d_separation(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
         """
         Given three sets of variables X, Y, and Z,
@@ -97,7 +95,6 @@ class BNReasoner:
         groups.remove('p')
         return factor.groupby(groups, as_index=False).sum()
 
-
     def max_out(self, factor: pd.DataFrame, X: str) -> pd.DataFrame:
         """
         Given a factor and a variable X, compute the CPT in which X is maxed-out.
@@ -112,7 +109,8 @@ class BNReasoner:
         """
         Given two factors f and g, compute the multiplied factor h=fg.
         """
-        common_columns = list(set(factor1.columns).intersection(factor2.columns))
+        common_columns = list(
+            set(factor1.columns).intersection(factor2.columns))
 
         common_columns.remove('p')
 
@@ -123,10 +121,10 @@ class BNReasoner:
 
         return output
 
-    def fill(self, interaction_graph: nx.DiGraph)-> str:
+    def fill(self, interaction_graph: nx.DiGraph) -> str:
         dict_points = {}
         interaction_graph = interaction_graph
-        
+
         for node in interaction_graph.nodes():
 
             neighbours = list(interaction_graph.neighbors(node))
@@ -146,7 +144,6 @@ class BNReasoner:
 
         return min(dict_points.items(), key=lambda x: x[1])
 
-
     def find_order(self, arg: str) -> List[str]:
         """
         Given a set of variables X in the Bayesian network,
@@ -155,7 +152,6 @@ class BNReasoner:
         order = []
         interaction_graph = self.bn.get_interaction_graph()
 
-
         for i in range(len(interaction_graph.nodes())-1):
             # find variable with the minimum degree in the interaction graph
             degrees = interaction_graph.degree()
@@ -163,7 +159,6 @@ class BNReasoner:
                 chosen_node, _ = min(degrees, key=lambda x: x[1])
             if arg == 'fill':
                 chosen_node, _ = self.fill(interaction_graph)
-
 
             # Queue variable 𝑋 ∈ 𝑿 ⊆ 𝑉 with the minimum degree in the interaction graph to the ordering.
             order.append(chosen_node)
@@ -174,7 +169,6 @@ class BNReasoner:
 
             # connect neighbours with edges
             for neighbour in neighbours:
-
 
                 # skip when no other neighbours
                 if len(other_neighbours) > 1:
@@ -194,8 +188,6 @@ class BNReasoner:
         order.append(list(interaction_graph.nodes())[0])
         return order
 
-
-
     def variable_elimination(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
 
         # get all variables in the network
@@ -211,14 +203,16 @@ class BNReasoner:
 
             for ancestor in ancestors:
 
-                tables = [table for table in self.bn.get_all_cpts().values() if ancestor in table.columns]
+                tables = [table for table in self.bn.get_all_cpts(
+                ).values() if ancestor in table.columns]
                 tables_copy = tables.copy()
                 for i in range(len(tables_copy)-1):
-                    product = self.factor_multiplication(tables[i], tables[i+1])
+                    product = self.factor_multiplication(
+                        tables[i], tables[i+1])
                     print(f"multiply: \n{tables[i]}, \n{tables[i+1]}")
                     print(node, ancestor)
                     print(f"after mult: \n{product}")
-                    tables[i+1]= product
+                    tables[i+1] = product
 
                 product = self.marginalization(product, ancestor)
 
@@ -233,17 +227,11 @@ class BNReasoner:
                 print(f"marg compeleted:\n {product}")
 
             # visualize results
-            #print(node)
-            #print(self.bn.get_cpt(node))
+            # print(node)
+            # print(self.bn.get_cpt(node))
         return
 
-
-
-
-
-
-
-    def find_ancestors(self, node : str, ancestors : List[str]):
+    def find_ancestors(self, node: str, ancestors: List[str]):
         ancestors = ancestors
 
         parents = list(self.bn.structure.predecessors(node))
@@ -255,5 +243,3 @@ class BNReasoner:
                 ancestors += self.find_ancestors(parent, ancestors)
                 ancestors = list(set(ancestors))
         return ancestors
-
-
