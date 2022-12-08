@@ -13,7 +13,6 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
 class BNReasoner():
     
     def __init__(self, 
@@ -77,39 +76,8 @@ class BNReasoner():
 
             return bn  
     
-    
-# --------------------------------- DEPENDANCY DETERMINATION --------------------------------- #
-
-    def d_separation(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
-        """
-        Given three sets of variables X, Y, and Z,
-        determine whether X is d-separated of Y given Z (evidence) through pruning
-        """
-        # convert Z to evidence pd series
-        Z = pd.Series({z: True for z in Z})
-
-        bn = self.prune(query=X+Y, evidence=Z)                                                                  # TODO: eigenlijk mag dit buiten de functie en moet dit in de main? want neem aan dat we dit ook voor andere functies nodig hebben
-
-        # convert directed graph to undirected graph
-        undirected = bn.structure.to_undirected()
-
-        # if there is a path from X to Y, then X is not d-separated from Y given Z
-        for x in X:
-            for y in Y:
-                if nx.has_path(undirected, x, y):
-                    return False
-
-        return True
-    
-
-    def independence(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
-        """
-        Given three sets of variables X, Y, and Z, determine whether X is independent of Y given Z
-        """
-        return self.d_separation(X, Y, Z)
      
-     
-# --------------------------------- NAIVE PROBILITY FUNCTIONS --------------------------------- #
+# --------------------------------- HELPER FUNCTIONS --------------------------------- #
 
     def marginalization(self, factor: pd.DataFrame,  X: str) -> pd.DataFrame:
         """
@@ -133,8 +101,6 @@ class BNReasoner():
         
         return factor.groupby(groups, as_index=False).max()
 
- 
-# --------------------------------- BAYES PROBABILITY FUNCTIONS --------------------------------- #
 
     def factor_multiplication(self, factor1: pd.DataFrame, factor2: pd.DataFrame) -> pd.DataFrame:
         """
@@ -154,7 +120,7 @@ class BNReasoner():
 
     def find_ancestors(self, node : str, ancestors : List[str]) -> List[str]: 
         """
-        Given a node, find all ancestors of this node.
+        Given a node, find all ancestors of this node
         """
         ancestors = ancestors
         
@@ -226,15 +192,8 @@ class BNReasoner():
         
         return order
    
-    
-    def marginal_distributions(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
-        """
-        Given a set of variables X in the Bayesian network, 
-        compute the marginal distribuition of X given the evidence.
-        """
-        # TODO: implement                                                                                       # kan mss ook in de bayes probability functie
-        return
    
+    # --------------------------------- BAYES PROBABILITY FUNCTIONS --------------------------------- #
     
     def bayes_probability(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
         """
@@ -272,7 +231,46 @@ class BNReasoner():
                 list_tables.append(product)
 
         return product
+    
+    
+    def marginal_distributions(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
+        """
+        Given a set of variables X in the Bayesian network, 
+        compute the marginal distribuition of X given the evidence.
+        """
+        # TODO: implement                                                                                       # kan mss ook in de bayes probability functie
+        return
 
+
+     # --------------------------------- DEPENDANCY DETERMINATION --------------------------------- #
+
+    def d_separation(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
+        """
+        Given three sets of variables X, Y, and Z,
+        determine whether X is d-separated of Y given Z (evidence) through pruning
+        """
+        # convert Z to evidence pd series
+        Z = pd.Series({z: True for z in Z})
+
+        bn = self.prune(query=X+Y, evidence=Z)                                                                  # TODO: eigenlijk mag dit buiten de functie en moet dit in de main? want neem aan dat we dit ook voor andere functies nodig hebben
+
+        # convert directed graph to undirected graph
+        undirected = bn.structure.to_undirected()
+
+        # if there is a path from X to Y, then X is not d-separated from Y given Z
+        for x in X:
+            for y in Y:
+                if nx.has_path(undirected, x, y):
+                    return False
+
+        return True
+    
+
+    def independence(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
+        """
+        Given three sets of variables X, Y, and Z, determine whether X is independent of Y given Z
+        """
+        return self.d_separation(X, Y, Z)
        
     # --------------------------------- ORDERING HEURISTICS --------------------------------- #	
 
