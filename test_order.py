@@ -17,5 +17,5 @@ bn.load_from_bifxml(path)
 br = BNReasoner(bn)
 
 # choose from 'min'  and 'fill'
-order = br.find_order('min')
+order = br.find_order(['A', 'B'])
 print(order)

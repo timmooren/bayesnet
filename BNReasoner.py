@@ -14,25 +14,25 @@ from copy import deepcopy
 import pandas as pd
 
 class BNReasoner():
-
-    def __init__(self,
+    
+    def __init__(self, 
                  order_method: str = 'min', #'min' or 'fill'
                  net: Union[str, BayesNet] = 'testing/lecture_example2.BIFXML'):
         """
         :param net: either file path of the bayesian network in BIFXML format or BayesNet object
         :param method: the ordering method to use for variable elimination:
             'min' for using the min-degree heuristic
-            'fill' for using the fill-in heuristic
-        """
+            'fill' for using the fill-in heuristic 
+        """ 
         if type(net) == str:
             # constructs a BN object
             self.bn = BayesNet()
             # Loads the BN from an BIFXML file
             self.bn.load_from_bifxml(net)
-
+            
         else:
             self.bn = net
-
+        
         # the ordering method to use for variable elimination
         self.order_method = order_method
 
@@ -44,7 +44,7 @@ class BNReasoner():
             Given a set of query variables Q and evidence e, node- and edge-prune the Bayesian network
             """
             keep_node_pruning = True
-
+            
             # create a copy of the structure
             bn = deepcopy(self.bn)
 
@@ -53,30 +53,29 @@ class BNReasoner():
                 for child in bn.get_children(node):
                     bn.del_edge((node, child))
 
-                # Replace the factor by a reduced factor
-                cpt = bn.get_cpt(child)
-                bd_cpt = bn.reduce_factor(
-                    instantiation=evidence, cpt=cpt)
-                bn.update_cpt(child, reduced_cpt)
+                    # Replace the factor by a reduced factor
+                    cpt = bn.get_cpt(child)
+                    reduced_cpt = bn.reduce_factor(instantiation=evidence, cpt=cpt)
+                    bn.update_cpt(child, reduced_cpt)
 
             # 2: node-prune: delete any leaf node that doesn’t appear in query or evidence
             to_keep = query + evidence.index.tolist()
-
+            
             # keep pruning until no nodes can be deleted
             while keep_node_pruning:
-
+                
                 for node in bn.get_all_variables():
-
+                
                     # prune leaf node
                     if node not in to_keep and not bn.get_children(node):
                         bn.del_var(node)
-
+                
                     # stop pruning
                     else:
                         keep_node_pruning = False
 
-            return bn
-
+            return bn  
+        
 
     def d_separation(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
         """
@@ -98,15 +97,15 @@ class BNReasoner():
                     return False
 
         return True
-
+    
 
     def independence(self, X: List[str], Y: List[str], Z: List[str]) -> bool:
         """
         Given three sets of variables X, Y, and Z, determine whether X is independent of Y given Z
         """
         return self.d_separation(X, Y, Z)
-
-
+    
+     
 # --------------------------------- MAX OUT --------------------------------- #
 
     @staticmethod
@@ -118,7 +117,7 @@ class BNReasoner():
         groups = factor.columns.to_list()
         groups.remove(X)
         groups.remove('p')
-
+        
         return factor.groupby(groups, as_index=False).max()
 
 
@@ -137,7 +136,7 @@ class BNReasoner():
         cpt.drop(variable, axis=1, inplace=True)
 
         return cpt
-
+    
     @staticmethod
     def factor_multiplication(factor1: pd.DataFrame, factor2: pd.DataFrame) -> pd.DataFrame:
         """
@@ -148,41 +147,41 @@ class BNReasoner():
         common_columns.remove('p')
 
         # merge the two factors by multiplying the probabilities
-        output = factor1.merge(factor2, on=common_columns)
+        output = factor1.merge(factor2, on=common_columns)   
         output['p'] = output['p_x'] * output['p_y']
         output.drop(['p_x', 'p_y'], axis=1, inplace=True)
-
+    
         return output
 
 
     # --------------------------------- BAYES PROBABILITY FUNCTIONS --------------------------------- #
-
+    
     def variable_elimination(self, query: List[str], evidence: pd.Series = pd.Series()) -> pd.DataFrame:
         """
-        Given a set of variables X in the Bayesian network,
+        Given a set of variables X in the Bayesian network, 
         compute the CPT of X given the evidence.
-        """
-
+        """      
+        
         # get ancestors of the query variable
         ancestors_sets = [nx.ancestors(self.bn.get_interaction_graph(), node) for node in query]
         intersection_set = set.union(*ancestors_sets)
         ancestors = list(intersection_set)
         print(f"ancestors \n {ancestors}")
-
+        
         # remove query from collective ancestors
         for node in query:
             ancestors = [ancestor for ancestor in ancestors if not node in ancestors]
-
-        # get the order of elimination
-        order = self.find_order(ancestors)
-
+        
+        # get the order of elimination       
+        order = self.find_order(ancestors)     
+        
         # make a list of all cpts in the BN
         cpt_list = list(self.bn.get_all_cpts().values())
         print(f"cpt_list: \n{cpt_list}")
-
+        
         # marginalize for every ancestor
-        for ancestor in order:
-
+        for ancestor in order: 
+            
             # get cpts for the variable and its ancestors
             for variable in ancestors:
                 tables_ancestors = [table for table in cpt_list if (ancestor in table.columns and variable in table.columns)]
@@ -195,11 +194,11 @@ class BNReasoner():
                 print(f"multiply: \n {tables_ancestors[i+1]}")
                 print(f"product: \n{product}")
                 tables_ancestors[i+1]= product
-
+            
             # remove all instantiations that are incompatible with the evidence
             if not evidence.empty:
-                self.bn.get_compatible_instantiations_table(evidence, product)
-
+                self.bn.get_compatible_instantiations_table(evidence, product)  
+            
             # remove already multiplied cpts from list
             cpt_list = [table for table in cpt_list if ancestor not in table.columns]
 
@@ -207,12 +206,12 @@ class BNReasoner():
             product = self.marginalization(product, ancestor)
             print(f"marginalized:\n {product}")
             cpt_list.append(product)
-
+            
             #print("DONE WITH LOOP")
 
         return product
-
-
+    
+    
     def marginal_distributions(self, query: List[str], evidence: pd.Series) -> pd.DataFrame:
         """ Sum out a set of variables by using variable elimination."""
         prior_marginal = self.variable_elimination(query, evidence)
@@ -221,105 +220,58 @@ class BNReasoner():
         prior_prob_evidence = evidence_cpt[evidence.index == evidence.values]
 
         return prior_marginal
-
+         
 
 # --------------------------------- ORDER DETERMINATION BAYES -------------------------------- #
-
-
+    
+    
     def find_order(self, variables = List[str]) -> List[str]:
         """
-        Given a set of variables X in the Bayesian network,
+        Given a set of variables X in the Bayesian network, 
         compute a good ordering for the elimination of X
         """
-        order = []
-        interaction_graph = self.bn.get_interaction_graph()
-
-        # repeats n-1 times
-        for i in range(len(interaction_graph.nodes()) - 1):
-            degrees = interaction_graph.degree()
-            if arg == 'min':
-                chosen_node, _ = min(degrees, key=lambda x: x[1])
-            if arg == 'fill':
-                chosen_node, _ = self.fill(interaction_graph)
-
-            # Queue variable 𝑋 ∈ 𝑿 ⊆ 𝑉 with the minimum degree in the interaction graph to the ordering.
-            order.append(chosen_node)
-
-            # find neigbours
+        
+        self.order_method = 'min'                                           # TODO: for some reason does not work as class attribute if this line is left out
+        order = [] # list of nodes in order of elimination
+        interaction_graph = self.bn.get_interaction_graph()     
+        
+        variables_copy = variables.copy()
+        
+        # elliminate node by node until all nodes are eliminated
+        for node in variables_copy:
+            
+            # determine wich node to elliminate next                        # TODO: implement other methods? 
+            if self.order_method == 'min':
+                chosen_node = min_degree(interaction_graph, variables)
+                
+            if self.order_method == 'fill':
+                chosen_node = min_fill(interaction_graph, variables)
+            
+            order.append(chosen_node)  
+            variables.remove(chosen_node)         
+            
+            # find direct neigbour nodes
             neighbours = list(interaction_graph.neighbors(chosen_node))
             other_neighbours = [n for n in neighbours]
-
+            
             # create new neighbourhood for each neighbour
             for neighbour in neighbours:
-
+                
                 # skip when no other neighbours
                 if len(other_neighbours) > 1:
-
+    
                     # prevent neigbour from connecting to itself
                     other_neighbours.remove(str(neighbour))
-
+                    
                     # fill in missing edges between neighbours in neighbourhood
                     for n in other_neighbours:
-
+                
                         if not interaction_graph.has_edge(n, neighbour):
                             interaction_graph.add_edge(neighbour, n)
 
             # remove current node and edges
-            interaction_graph.remove_node(chosen_node)
-
+            interaction_graph.remove_node(chosen_node)     
+        
         return order
-
-    def variable_elimination(self, query: List[str], evidence: List[str]) -> pd.DataFrame:
-
-        # get all variables in the network
-        for node in query:
-            # if node in evidence.index:
-            #     raise ValueError("Query variable cannot be in evidence")
-
-            # get all grandparents
-            ancestors = self.find_ancestors(node, [])
-
-            #order = self.find_order('min')
-            order = ['A', 'B']
-
-            for ancestor in ancestors:
-
-                tables = [table for table in self.bn.get_all_cpts(
-                ).values() if ancestor in table.columns]
-                tables_copy = tables.copy()
-                for i in range(len(tables_copy)-1):
-                    product = self.factor_multiplication(
-                        tables[i], tables[i+1])
-                    print(f"multiply: \n{tables[i]}, \n{tables[i+1]}")
-                    print(node, ancestor)
-                    print(f"after mult: \n{product}")
-                    tables[i+1] = product
-
-                product = self.marginalization(product, ancestor)
-
-                # remove all tables with ancestor
-                # do make list of self.bn.get_all_cpts() (copy) and then remove tables from list when using in multiplication.
-                for table in tables:
-                    self.bn.del_var(????)
-
-                # add new table to list
-                self.bn.add_var("product", product)
-
-                print(f"marg compeleted:\n {product}")
-
-            # visualize results
-            # print(node)
-            # print(self.bn.get_cpt(node))
-        return
-
-    def find_ancestors(self, node: str, ancestors: List[str]):
-        ancestors = ancestors
-
-        parents = list(self.bn.structure.predecessors(node))
-
-        if parents:
-            for parent in parents:
-                ancestors.append(parent)
-                ancestors += self.find_ancestors(parent, ancestors)
-                ancestors = list(set(ancestors))
-        return ancestors
+   
+       

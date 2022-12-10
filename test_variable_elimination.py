@@ -16,5 +16,4 @@ bn.load_from_bifxml(path)
 # %%
 br = BNReasoner(bn)
 
-cpt = br.variable_elimination(["C"], [])
-print(cpt)
+br.variable_elimination(["C"], [])
