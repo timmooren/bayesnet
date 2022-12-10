@@ -16,4 +16,11 @@ bn.load_from_bifxml(path)
 # %%
 br = BNReasoner(bn)
 
-br.variable_elimination(["C"], [])
+prior = br.variable_elimination(['C'], pd.Series(dtype='float64'))
+print(prior)
+
+posterior = br.marginal_distributions(['C'], pd.Series({'A': True}))
+print(posterior)
+
+
+

@@ -45,17 +45,17 @@
     <!-- PCTs -->
     <DEFINITION>
         <FOR>A</FOR>
-        <TABLE>0.6 0.4</TABLE>
+        <TABLE>0.4 0.6</TABLE>
     </DEFINITION>
     <DEFINITION>
         <FOR>B</FOR>
         <GIVEN>A</GIVEN>
-        <TABLE>0.9 0.1 0.2 0.8</TABLE>
+        <TABLE>0.8 0.2 0.1 0.9</TABLE>
     </DEFINITION>
     <DEFINITION>
         <FOR>C</FOR>
         <GIVEN>B</GIVEN>
-        <TABLE>0.3 0.7 0.5 0.5</TABLE> <!-- Order: Rain?, Sprinkler?, Wet Grass?-->
+        <TABLE>0.5 0.5 0.7 0.3</TABLE> 
     </DEFINITION>
 
 </NETWORK>

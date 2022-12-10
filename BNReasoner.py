@@ -161,65 +161,77 @@ class BNReasoner():
         Given a set of variables X in the Bayesian network, 
         compute the CPT of X given the evidence.
         """      
-        
         # get ancestors of the query variable
         ancestors_sets = [nx.ancestors(self.bn.get_interaction_graph(), node) for node in query]
         intersection_set = set.union(*ancestors_sets)
         ancestors = list(intersection_set)
-        print(f"ancestors \n {ancestors}")
         
         # remove query from collective ancestors
-        for node in query:
-            ancestors = [ancestor for ancestor in ancestors if not node in ancestors]
+        ancestors = [ancestor for ancestor in ancestors if not ancestor in query]        
         
         # get the order of elimination       
-        order = self.find_order(ancestors)     
+        order = self.find_order(ancestors)  
         
-        # make a list of all cpts in the BN
-        cpt_list = list(self.bn.get_all_cpts().values())
-        print(f"cpt_list: \n{cpt_list}")
+        # make a list of all cpts of ancestors and query in the BN
+        all_variables = order + query
+        cpt_list = []
+
+        for variable in all_variables:
+            cpt = self.bn.get_cpt(variable)
+
+            # in case of evidence, remove incompatible rows from cpt
+            if not evidence.empty:
+                cpt = self.bn.get_compatible_instantiations_table(evidence, cpt)
+
+            cpt_list.append(cpt)
+       
         
         # marginalize for every ancestor
         for ancestor in order: 
-            
             # get cpts for the variable and its ancestors
-            for variable in ancestors:
-                tables_ancestors = [table for table in cpt_list if (ancestor in table.columns and variable in table.columns)]
+            tables_ancestors = [table for table in cpt_list if ancestor in table.columns]
             tables_copy = tables_ancestors.copy()
 
             # multiply all cpts for every cpt
             for i in range(len(tables_copy)-1):
                 product = self.factor_multiplication(tables_ancestors[i], tables_ancestors[i+1])
-                print(f"multiply: \n {tables_ancestors[i]}")
-                print(f"multiply: \n {tables_ancestors[i+1]}")
-                print(f"product: \n{product}")
                 tables_ancestors[i+1]= product
-            
-            # remove all instantiations that are incompatible with the evidence
-            if not evidence.empty:
-                self.bn.get_compatible_instantiations_table(evidence, product)  
-            
+              
             # remove already multiplied cpts from list
             cpt_list = [table for table in cpt_list if ancestor not in table.columns]
-
+            
             # and append summed out table of ancestor to list
             product = self.marginalization(product, ancestor)
-            print(f"marginalized:\n {product}")
             cpt_list.append(product)
             
             #print("DONE WITH LOOP")
+        
+        # in case of multiple variables in query, and a variable in query is an ancestor of other variable in query
+        # there will be a factor 'outside' of the summations, this factor also needs to be multiplied
+        if len(cpt_list) > 1:
+            for i in range(len(cpt_list)-1):
+                product = self.factor_multiplication(cpt_list[i], cpt_list[i+1])
+                cpt_list[i+1] = product
+
 
         return product
     
     
     def marginal_distributions(self, query: List[str], evidence: pd.Series) -> pd.DataFrame:
         """ Sum out a set of variables by using variable elimination."""
-        prior_marginal = self.variable_elimination(query, evidence)
-        evidence_cpt = self.bn.get_cpt(evidence.index)
-        print(evidence_cpt)
-        prior_prob_evidence = evidence_cpt[evidence.index == evidence.values]
+        # compute Pr(Q ^ E)
+        posterior_marginal = self.variable_elimination(query, evidence)
 
-        return prior_marginal
+        # compute the marginal P(E)
+        for variable, value in evidence.items():
+            cpt_evidence = self.bn.get_cpt(variable)
+            marginal = cpt_evidence.loc[cpt_evidence[variable]==value, 'p'].iloc[0]
+
+            #compute the posterior marginal Pr(Q|E) = Pr(Q ^ E) / P(E)
+            posterior_marginal['p'] = posterior_marginal['p'] / marginal
+        
+
+        return posterior_marginal
          
 
 # --------------------------------- ORDER DETERMINATION BAYES -------------------------------- #
