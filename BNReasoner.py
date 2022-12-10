@@ -38,7 +38,7 @@ class BNReasoner:
 
                 # Replace the factor by a reduced factor
                 cpt = bn.get_cpt(child)
-                reduced_cpt = bn.reduce_factor(
+                bd_cpt = bn.reduce_factor(
                     instantiation=evidence, cpt=cpt)
                 bn.update_cpt(child, reduced_cpt)
 
@@ -152,8 +152,8 @@ class BNReasoner:
         order = []
         interaction_graph = self.bn.get_interaction_graph()
 
-        for i in range(len(interaction_graph.nodes())-1):
-            # find variable with the minimum degree in the interaction graph
+        # repeats n-1 times
+        for i in range(len(interaction_graph.nodes()) - 1):
             degrees = interaction_graph.degree()
             if arg == 'min':
                 chosen_node, _ = min(degrees, key=lambda x: x[1])
@@ -237,7 +237,6 @@ class BNReasoner:
         parents = list(self.bn.structure.predecessors(node))
 
         if parents:
-
             for parent in parents:
                 ancestors.append(parent)
                 ancestors += self.find_ancestors(parent, ancestors)
