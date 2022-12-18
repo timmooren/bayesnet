@@ -48,7 +48,7 @@ Here is an example of how you might use the variable elimination method:
 # This would compute the probability of the variable P given the values of the variables B and E. 
 query_variable = 'P'
 evidence_variables = {'B': 1, 'E': 0}
-result = reasoner.ve_inference(query_variable, evidence_variables)
+result = reasoner.variable_elimination(query_variable, evidence_variables)
 ```
 
 ### Representations:
