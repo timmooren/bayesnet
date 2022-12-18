@@ -9,9 +9,10 @@ The BNReasoner class is used to perform inference on a Bayesian network. It prov
 
 To use the BNReasoner class, you will first need to instantiate it with a Bayesian network in BIFXML format or as a BayesNet object. You can then use the various methods provided to query the network and perform inference.  Examples of Bayesian Networks are provided in the testing folder.
 
-Some of the key features of the BNReasoner class include:
 
-### The BNReasoner class contains the following methods:
+### Methods
+
+The BNReasoner class contains the following methods:
 
 #### __init__: initializes the BNReasoner class with a Bayesian network in BIFXML format or as a BayesNet object, and a method and heuristic for use in variable elimination.
 
