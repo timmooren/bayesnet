@@ -1,4 +1,4 @@
-# bayesnet
+# Bayesnet
 
 ## Welcome to the Bayesian Network Reasoner!
 
