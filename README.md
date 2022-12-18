@@ -14,19 +14,19 @@ To use the BNReasoner class, you will first need to instantiate it with a Bayesi
 
 The BNReasoner class contains the following methods:
 
-#### __init__: initializes the BNReasoner class with a Bayesian network in BIFXML format or as a BayesNet object, and a method and heuristic for use in variable elimination.
+- __init__: initializes the BNReasoner class with a Bayesian network in BIFXML format or as a BayesNet object, and a method and heuristic for use in variable elimination.
 
-#### load_new_bn: allows you to load an existing Bayesian network into the BNReasoner.
+- load_new_bn: allows you to load an existing Bayesian network into the BNReasoner.
 
-#### prune: given a set of query variables and evidence, performs node- and edge-pruning on the Bayesian network.
+- prune: given a set of query variables and evidence, performs node- and edge-pruning on the Bayesian network.
 
-#### d_separation: determines whether two sets of variables are independent given a third set of variables, using the d-separation criterion.
+- d_separation: determines whether two sets of variables are independent given a third set of variables, using the d-separation criterion.
 
-#### variable_elimination: performs variable elimination on the Bayesian network to compute the probability of a given query variable given the values of a set of evidence variables.
+- variable_elimination: performs variable elimination on the Bayesian network to compute the probability of a given query variable given the values of a set of evidence variables.
 
-#### MAP: computes the maximum a posteriori of a given query variable given the values of a set of evidence variables.
+- MAP: computes the maximum a posteriori of a given query variable given the values of a set of evidence variables.
 
-#### MPE: computes the maximum probable explanation of a given query variable given the values of a set of evidence variables.
+- MPE: computes the maximum probable explanation of a given query variable given the values of a set of evidence variables.
 
 Additionally, the class includes several other methods and functions, such as max_out, marginalization, and factor_multiplication, which are used to support the above methods.
 
