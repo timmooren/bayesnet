@@ -41,7 +41,7 @@ Instantiate the BNReasoner class. To do this, you will need to specify a Bayesia
 reasoner = BNReasoner(net='my_network.BIFXML', method='min', heuristic='min-degree')
 ```
 
-Use the methods of the BNReasoner class to perform inference on the network. For example, you could use the variable elimination method to perform variable elimination, or the map_inference method to compute the maximum a posteriori of a given query variable.
+Use the methods of the BNReasoner class to perform inference on the network. For example, you could use the variable elimination method to perform variable elimination, or the MAP method to compute the maximum a posteriori of a given query variable.
 Here is an example of how you might use the variable elimination method:
 
 ```
