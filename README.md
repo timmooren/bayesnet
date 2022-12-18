@@ -2,7 +2,7 @@
 
 ## Welcome to the Bayesian Network Reasoner!
 
-A Bayesian network is a probabilistic graphical model that represents a set of variables and their probabilistic dependencies. It is a powerful tool for representing and reasoning about complex systems, and can be used to make predictions and decisions under uncertainty. This Bayesian network reasoner allows you to create, edit, and reason with Bayesian networks.  You can use the reasoning algorithms to answer probabilistic queries about your system. For example, you can use the probability of a given variable given the values of other variables, or compute the expected value of a variable.
+A Bayesian network is a probabilistic graphical model that represents a set of variables and their probabilistic dependencies. It is a powerful tool for representing and reasoning about complex systems, and can be used to make predictions and decisions under uncertainty. This Bayesian network reasoner allows you to create, edit, and reason with Bayesian networks.  You can use the reasoning algorithms to answer probabilistic queries about your system. For example, you can use the probability of a given variable given the values of other variables, or compute the expected value of a variable. Please note that this Bayesian Network Reasoner is only build to process binary coded Bayesian Networks.
 
 ## BNReasoner Class
 The BNReasoner class is used to perform inference on a Bayesian network. It provides a range of functions for querying the network, including methods for independence determination, variable elimination, and maximum a posteriori (MAP) and maximum probable explanation (MPE) inference.
@@ -17,10 +17,7 @@ Variable elimination: the variable elimination method performs variable eliminat
 
 MAP and MPE inference: the map and mpe inference methods allow you to compute the maximum a posteriori and maximum probable explanation of a given query variable given the values of a set of evidence variables.
 
-### Good to know:
-This Bayesian Network Reasoner is only build to process binary coded Bayesian Networks.
-
-### representations:
+### Representations:
 - variable: str
 - instantiation: a series of assignments as tuples. E.g.: pd.Series({"A": True, "B": False})
 - cpt: pd.Dataframe
