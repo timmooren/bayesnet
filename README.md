@@ -30,6 +30,27 @@ The BNReasoner class contains the following methods:
 
 Additionally, the class includes several other methods and functions, such as max_out, marginalization, and factor_multiplication, which are used to support the above methods.
 
+### Running the code
+To run this code, you will need to do the following:
+
+Make sure that you have the necessary dependencies installed. The code imports several modules, including typing, BayesNet, heuristics, helper_functions, pandas, networkx, copy, and matplotlib. You will need to have these modules installed in your environment in order to run the code.
+
+Instantiate the BNReasoner class. To do this, you will need to specify a Bayesian network in BIFXML format or as a BayesNet object, as well as a method and heuristic for use in variable elimination. For example:
+
+```
+reasoner = BNReasoner(net='my_network.BIFXML', method='min', heuristic='min-degree')
+```
+
+Use the methods of the BNReasoner class to perform inference on the network. For example, you could use the variable elimination method to perform variable elimination, or the map_inference method to compute the maximum a posteriori of a given query variable.
+Here is an example of how you might use the variable elimination method:
+
+```
+# This would compute the probability of the variable P given the values of the variables B and E. The output of the
+query_variable = 'P'
+evidence_variables = {'B': 1, 'E': 0}
+result = reasoner.ve_inference(query_variable, evidence_variables)
+```
+
 ### Representations:
 - variable: str
 - instantiation: a series of assignments as tuples. E.g.: pd.Series({"A": True, "B": False})
